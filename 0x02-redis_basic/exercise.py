@@ -26,14 +26,14 @@ def call_history(method: Callable) -> Callable:
     """
 
     @wraps(method)
-    def wrapper(self, *args, **kwargs) -> Any:
+    def wrapper(self: Any, *args: Any) -> Any:
         """Returns the method's output after storing its inputs and output.
         """
         in_key = f'{method.__qualname__}:inputs'
         out_key = f'{method.__qualname__}:outputs'
         if isinstance(self._redis, redis.Redis):
             self._redis.rpush(in_key, str(args))
-            output = method(self, *args, **kwargs)
+            output = method(self, *args)
             self._redis.rpush(out_key, output)
             return output
         return None
