@@ -44,14 +44,16 @@ def call_history(method: Callable) -> Callable:
 def replay(fn: Callable) -> None:
     """Displays the call history of a Cache class' method.
     """
+    if not isinstance(fn, Callable):
+        return
     r = redis.Redis()
     fn_name = fn.__qualname__
     count = int(r.get(fn_name))
+    print(f'{fn_name} was called {count} times:')
     inputs = r.lrange(f'{fn_name}:inputs', 0, -1)
     outputs = r.lrange(f'{fn_name}:outputs', 0, -1)
-    print(f'{fn_name} was called {count} times:')
     for i, o in zip(inputs, outputs):
-        print(f'{fn_name}(*{i}) -> {o}')
+        print(f'{fn_name}(*{i.decode("utf-8")}) -> {o}')
 
 
 DataType = Union[str, bytes, int, float]
