@@ -44,6 +44,8 @@ def call_history(method: Callable) -> Callable:
 def replay(fn: Callable) -> None:
     """Displays the call history of a Cache class' method.
     """
+    if fn is None:
+        return
     r = redis.Redis()
     fn_name = fn.__qualname__
     count = 0
