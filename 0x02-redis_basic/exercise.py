@@ -50,10 +50,10 @@ def replay(fn: Callable) -> None:
     if not isinstance(r, redis.Redis):
         return
     fn_name = fn.__qualname__
-    if not r.exists(fn_name):
-        return
-    count: int = r.get(fn_name)
+    count: int = r.get(fn_name) if r.exists(fn_name) else 0
     print(f'{fn_name} was called {count} times:')
+    if count == 0:
+        return
     inputs = r.lrange(f'{fn_name}:inputs', 0, -1)
     outputs = r.lrange(f'{fn_name}:outputs', 0, -1)
     for i, o in zip(inputs, outputs):
