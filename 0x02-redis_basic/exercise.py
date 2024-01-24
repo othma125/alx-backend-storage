@@ -11,14 +11,14 @@ def count_calls(method: Callable) -> Callable:
     """
 
     @wraps(method)
-    def invoker(self, *args, **kwargs) -> Any:
+    def wrapper(self, *args, **kwargs) -> Any:
         """Invokes the given method after incrementing its call counter.
         """
         if isinstance(self._redis, redis.Redis):
             self._redis.incr(method.__qualname__)
         return method(self, *args, **kwargs)
 
-    return invoker
+    return wrapper
 
 
 def call_history(method: Callable) -> Callable:
@@ -26,7 +26,7 @@ def call_history(method: Callable) -> Callable:
     """
 
     @wraps(method)
-    def invoker(self, *args, **kwargs) -> Any:
+    def wrapper(self, *args, **kwargs) -> Any:
         """Returns the method's output after storing its inputs and output.
         """
         in_key = f'{method.__qualname__}:inputs'
@@ -38,7 +38,7 @@ def call_history(method: Callable) -> Callable:
             self._redis.rpush(out_key, output)
         return output
 
-    return invoker
+    return wrapper
 
 
 def replay(fn: Callable) -> None:
@@ -58,6 +58,9 @@ def replay(fn: Callable) -> None:
         print(f"{fn_name}(*{i.decode('utf-8')}) -> {o.decode('utf-8')}")
 
 
+DataType = Union[str, bytes, int, float]
+
+
 class Cache:
     def __init__(self):
         """Cache class"""
@@ -66,14 +69,13 @@ class Cache:
 
     @count_calls
     @call_history
-    def store(self, data: Union[str, bytes, int, float]) -> str:
+    def store(self, data: DataType) -> str:
         """Method that stores cache data"""
         key = str(uuid4())
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None) \
-            -> Union[str, bytes, int, float]:
+    def get(self, key: str, fn: Callable = None) -> DataType:
         """Method that gets cache data"""
         if fn:
             return fn(self._redis.get(key))
