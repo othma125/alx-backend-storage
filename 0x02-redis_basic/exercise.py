@@ -51,9 +51,9 @@ def replay(method: Callable) -> None:
         return
     name = method.__qualname__
     count = int(r.get(name)) if r.exists(name) else 0
-    print(f'{name} was called {count} times:')
     if count == 0:
         return
+    print(f'{name} was called {count} times:')
     inputs = r.lrange(f'{name}:inputs', 0, -1)
     outputs = r.lrange(f'{name}:outputs', 0, -1)
     for i, o in zip(inputs, outputs):
