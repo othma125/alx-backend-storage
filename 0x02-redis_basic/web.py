@@ -14,7 +14,7 @@ def data_cacher(method: Callable) -> Callable:
     """Caches the output of fetched data.
     """
     @wraps(method)
-    def invoker(url) -> str:
+    def invoker(url: str) -> str:
         """Returns the cached data if available, otherwise fetches it.
         """
         r.incr(f"count:{url}")
