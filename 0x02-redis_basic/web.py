@@ -2,7 +2,7 @@
 """A module with tools for request caching and tracking.
 """
 import redis
-import requests
+from requests import get
 from functools import wraps
 from typing import Callable
 
@@ -15,16 +15,14 @@ def data_cacher(method: Callable) -> Callable:
     """
     @wraps(method)
     def invoker(url) -> str:
-        """The wrapper function for caching the output.
+        """Returns the cached data if available, otherwise fetches it.
         """
-        r.incr(f'count:{url}')
-        result = r.get(f'result:{url}')
-        if result:
-            return result.decode('utf-8')
-        result = method(url)
-        r.set(f'count:{url}', 0)
-        r.setex(f'result:{url}', 10, result)
-        return result
+        data = r.get(url)
+        if data:
+            return data.decode('utf-8')
+        data = method(url)
+        r.setex(url, 10, data)
+        return data
     return invoker
 
 
@@ -33,4 +31,4 @@ def get_page(url: str) -> str:
     """Returns the content of a URL after caching the request's response,
     and tracking the request.
     """
-    return requests.get(url).text
+    return get(url).text
