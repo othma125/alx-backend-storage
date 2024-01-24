@@ -57,7 +57,7 @@ def replay(fn: Callable) -> None:
     inputs = r.lrange(f'{fn_name}:inputs', 0, -1)
     outputs = r.lrange(f'{fn_name}:outputs', 0, -1)
     for i, o in zip(inputs, outputs):
-        print(f'{fn_name}(*{i.decode("utf-8")}) -> {o}')
+        print(f'{fn_name}(*{i.decode("utf-8")}) -> {o.decode("utf-8")}')
 
 
 DataType = Union[str, bytes, int, float]
