@@ -44,20 +44,14 @@ def call_history(method: Callable) -> Callable:
 def replay(fn: Callable) -> None:
     """Displays the call history of a Cache class' method.
     """
-    if fn is None or not hasattr(fn, '__self__'):
-        return
-    r = getattr(fn.__self__, '_redis', None)
-    if not isinstance(r, redis.Redis):
-        return
+    r = redis.Redis()
     fn_name = fn.__qualname__
-    count = 0
-    if r.exists(fn_name) != 0:
-        count = int(redis_store.get(fn_name))
-    print(f'{fn_name} was called {count} times:')
+    count = r.get(fn_name).decode('utf-8')
     inputs = r.lrange(f'{fn_name}:inputs', 0, -1)
     outputs = r.lrange(f'{fn_name}:outputs', 0, -1)
+    print(f'{fn_name} was called {count} times:')
     for i, o in zip(inputs, outputs):
-        print(f"{fn_name}(*{i.decode('utf-8')}) -> {o.decode('utf-8')}")
+        print(f'{fn_name}(*{i.decode("utf-8")}) -> {o.decode("utf-8")}')
 
 
 DataType = Union[str, bytes, int, float]
