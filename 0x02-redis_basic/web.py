@@ -21,10 +21,10 @@ def data_cacher(method: Callable) -> Callable:
         if r.exists(name):
             r.incr(f"count:{url}")
             return r.get(name)
-        result = method(url).decode('utf-8')
+        result = method(url)
         if not r.exists(f"count:{url}"):
             r.set(f'count:{url}', 0)
-        r.incr(f"count:{url}")
+        # r.incr(f"count:{url}")
         r.setex(name, 10, result)
         return result
     return wrapper
