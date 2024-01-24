@@ -18,12 +18,12 @@ def data_cacher(method: Callable) -> Callable:
         """Returns the cached data if available, otherwise fetches it.
         """
         r.incr(f"count:{url}")
-        cached_response = r.get(f"cached:{url}")
+        cached_response = r.get(f"result:{url}")
         if cached_response:
             return cached_response.decode('utf-8')
         result = method(url)
         r.set(f'count:{url}', 0)
-        r.setex(f"cached:{url}", 10, result)
+        r.setex(f"result:{url}", 10, result)
         return result
     return wrapper
 
