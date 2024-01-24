@@ -44,26 +44,20 @@ def call_history(method: Callable) -> Callable:
 def replay(fn: Callable) -> None:
     """Displays the call history of a Cache class' method.
     """
-    if fn is None or not hasattr(fn, '__self__'):
-        return
-    redis_store = getattr(fn.__self__, '_redis', None)
-    if not isinstance(redis_store, redis.Redis):
-        return
-    fxn_name = fn.__qualname__
-    in_key = f'{fxn_name}:inputs'
-    out_key = f'{fxn_name}:outputs'
-    fxn_call_count = 0
-    if redis_store.exists(fxn_name) != 0:
-        fxn_call_count = int(redis_store.get(fxn_name))
-    print(f'{fxn_name} was called {fxn_call_count} times:')
-    fxn_inputs = redis_store.lrange(in_key, 0, -1)
-    fxn_outputs = redis_store.lrange(out_key, 0, -1)
-    for fxn_input, fxn_output in zip(fxn_inputs, fxn_outputs):
-        print('{}(*{}) -> {}'.format(
-            fxn_name,
-            fxn_input.decode("utf-8"),
-            fxn_output,
-        ))
+    r = redis.Redis()
+    fn_name = fn.__qualname__
+    n_calls = r.get(fn_name)
+    if n_calls:
+        n_calls = n_calls.decode('utf-8')
+    else:
+        n_calls = 0
+    print(f'{fn_name} was called {n_calls} times:')
+    inputs = r.lrange(f'{fn_name}:inputs', 0, -1)
+    outputs = r.lrange(f'{fn_name}:outputs', 0, -1)
+    for i, o in zip(inputs, outputs):
+        i = i.decode('utf-8')
+        o = o.decode('utf-8')
+        print(f'{fn_name}(*{i}) -> {o}')
 
 
 class Cache:
