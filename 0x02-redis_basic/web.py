@@ -22,7 +22,7 @@ def data_cacher(method: Callable) -> Callable:
         if cached_response:
             return cached_response
         result = method(url)
-        # r.set(f'count:{url}', 0)
+        r.set(f'count:{url}', 0)
         r.setex(f"result:{url}", 10, result)
         return result
     return wrapper
