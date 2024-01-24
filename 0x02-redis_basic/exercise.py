@@ -50,7 +50,7 @@ def replay(method: Callable) -> None:
     if not isinstance(r, redis.Redis):
         return
     name = method.__qualname__
-    count = int(r.get(name)) if r.exists(name) else 0
+    count = int(r.get(name)) if r.exists(name) > 0 else 0
     if count == 0:
         return
     print(f'{name} was called {count} times:')

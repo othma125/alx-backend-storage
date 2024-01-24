@@ -19,11 +19,10 @@ def data_cacher(method: Callable) -> Callable:
         """
         r.incr(f"count:{url}")
         name: str = method.__qualname__
-        if r.get(name):
+        if r.get(name) is not None:
             return r.get(name)
         result = method(url)
         r.setex(name, 10, result)
-        r.setex(f'count:{url}', 10, r.get(f'count:{url}') or 1)
         return r.get(name)
     return wrapper
 
