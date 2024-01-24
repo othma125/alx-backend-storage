@@ -2,7 +2,23 @@
 """Cache module"""
 import redis
 from uuid import uuid4
-from typing import Union, Callable
+from typing import Union, Callable, Any
+from functools import wraps
+
+
+def count_calls(method: Callable) -> Callable:
+    """Tracks the number of calls made to a method in a Cache class.
+    """
+
+    @wraps(method)
+    def invoker(self, *args, **kwargs) -> Any:
+        """Invokes the given method after incrementing its call counter.
+        """
+        if isinstance(self._redis, redis.Redis):
+            self._redis.incr(method.__qualname__)
+        return method(self, *args, **kwargs)
+
+    return invoker
 
 
 class Cache:
@@ -17,7 +33,7 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None)\
+    def get(self, key: str, fn: Callable = None) \
             -> Union[str, bytes, int, float]:
         """Method that gets cache data"""
         if fn:
