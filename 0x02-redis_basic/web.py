@@ -20,7 +20,7 @@ def data_cacher(method: Callable) -> Callable:
         r.incr(f"count:{url}")
         cached_response = r.get(f"result:{url}")
         if cached_response:
-            return cached_response.decode('utf-8')
+            return cached_response
         result = method(url)
         r.set(f'count:{url}', 0)
         r.setex(f"result:{url}", 10, result.encode('utf-8'))
