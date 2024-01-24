@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """A module with tools for request caching and tracking.
 """
-import redis
-import requests
+import Redis
+from requests import get
 from functools import wraps
 from typing import Callable
 
@@ -32,4 +32,4 @@ def get_page(url: str) -> str:
     """Returns the content of a URL after caching the request's response,
     and tracking the request.
     """
-    return requests.get(url).text
+    return get(url).text

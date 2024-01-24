@@ -41,15 +41,15 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
-def replay(fn: Callable) -> None:
+def replay(method: Callable) -> None:
     """Displays the call history of a Cache class' method.
     """
-    if fn is None or not hasattr(fn, '__self__'):
+    if method is None or not hasattr(method, '__self__'):
         return
-    r = getattr(fn.__self__, '_redis', None)
+    r = getattr(method.__self__, '_redis', None)
     if not isinstance(r, redis.Redis):
         return
-    name = fn.__qualname__
+    name = method.__qualname__
     count = int(r.get(name)) if r.exists(name) else 0
     print(f'{name} was called {count} times:')
     if count == 0:
@@ -57,7 +57,7 @@ def replay(fn: Callable) -> None:
     inputs = r.lrange(f'{name}:inputs', 0, -1)
     outputs = r.lrange(f'{name}:outputs', 0, -1)
     for i, o in zip(inputs, outputs):
-        print(f'{name}(*{i.decode("utf-8")}) -> {o}')
+        print(f'{name}(*{i.decode("utf-8")}) -> {o.decode("utf-8")}')
 
 
 DataType = Union[str, bytes, int, float]
@@ -77,11 +77,11 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(self, key: str, fn: Callable = None) -> DataType:
+    def get(self, key: str, method: Callable = None) -> DataType:
         """Method that gets cache data"""
         data = self._redis.get(key)
-        if fn:
-            return fn(data)
+        if method:
+            return method(data)
         return data
 
     def get_str(self, key: str) -> str:
