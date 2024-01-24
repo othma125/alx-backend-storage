@@ -46,7 +46,7 @@ def replay(fn: Callable) -> None:
     """
     r = redis.Redis()
     fn_name = fn.__qualname__
-    count = r.get(fn_name).decode('utf-8')
+    count = int(r.get(fn_name))
     inputs = r.lrange(f'{fn_name}:inputs', 0, -1)
     outputs = r.lrange(f'{fn_name}:outputs', 0, -1)
     print(f'{fn_name} was called {count} times:')
