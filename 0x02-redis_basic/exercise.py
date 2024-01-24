@@ -33,10 +33,11 @@ def call_history(method: Callable) -> Callable:
         out_key = f'{method.__qualname__}:outputs'
         if isinstance(self._redis, redis.Redis):
             self._redis.rpush(in_key, str(args))
-        output = method(self, *args, **kwargs)
-        if isinstance(self._redis, redis.Redis):
-            self._redis.rpush(out_key, output)
-        return output
+            output = method(self, *args, **kwargs)
+        # if isinstance(self._redis, redis.Redis):
+            self._redis.rpush(out_key, str(output))
+            return output
+        return None
 
     return wrapper
 
@@ -44,10 +45,6 @@ def call_history(method: Callable) -> Callable:
 def replay(fn: Callable) -> None:
     """Displays the call history of a Cache class' method.
     """
-    if fn is None or not isinstance(fn, Callable):
-        return
-    if not fn.__self__:
-        return
     r = redis.Redis()
     fn_name = fn.__qualname__
     count = int(r.get(fn_name))

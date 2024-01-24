@@ -17,12 +17,11 @@ def data_cacher(method: Callable) -> Callable:
     def wrapper(url: str) -> str:
         """Returns the cached data if available, otherwise fetches it.
         """
+        r.incr(f"count:{url}")
         name: str = method.__qualname__
         if r.exists(name):
-            r.incr(f"count:{url}")
             return r.get(name)
         result = method(url)
-        r.incr(f"count:{url}")
         r.setex(name, 10, result)
         return result
     return wrapper
