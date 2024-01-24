@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A module with tools for request caching and tracking.
 """
-import Redis
+import redis
 from requests import get
 from functools import wraps
 from typing import Callable
