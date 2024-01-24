@@ -2,7 +2,7 @@
 """A module with tools for request caching and tracking.
 """
 import redis
-from requests import get
+import requests
 from functools import wraps
 from typing import Callable
 
@@ -32,4 +32,4 @@ def get_page(url: str) -> str:
     """Returns the content of a URL after caching the request's response,
     and tracking the request.
     """
-    return get(url).text
+    return requests.get(url).text
