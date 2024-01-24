@@ -21,7 +21,7 @@ def data_cacher(method: Callable) -> Callable:
         if r.exists(name):
             r.incr(f"count:{url}")
             return r.get(name)
-        result = method(url)
+        result = method(url).decode('utf-8')
         if not r.exists(f"count:{url}"):
             r.set(f'count:{url}', 0)
         r.incr(f"count:{url}")
