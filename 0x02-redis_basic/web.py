@@ -23,7 +23,7 @@ def data_cacher(method: Callable) -> Callable:
             return r.get(name)
         result = method(url)
         r.setex(name, 10, result)
-        return result
+        return r.get(name)
     return wrapper
 
 
