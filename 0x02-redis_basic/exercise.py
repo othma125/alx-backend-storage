@@ -55,9 +55,7 @@ def replay(fn: Callable) -> None:
     inputs = r.lrange(f'{fn_name}:inputs', 0, -1)
     outputs = r.lrange(f'{fn_name}:outputs', 0, -1)
     for i, o in zip(inputs, outputs):
-        i = i.decode('utf-8')
-        o = o.decode('utf-8')
-        print(f'{fn_name}(*{i}) -> {o}')
+        print(f"{fn_name}(*{i.decode('utf-8')}) -> {o.decode('utf-8')}")
 
 
 class Cache:
