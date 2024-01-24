@@ -45,7 +45,9 @@ def call_history(method: Callable) -> Callable:
 def replay(fn: Callable) -> None:
     """Displays the call history of a Cache class' method.
     """
-    r = redis.Redis()
+    r = getattr(fn.__self__, '_redis', None)
+    if not isinstance(r, redis.Redis):
+        return
     fn_name = fn.__qualname__
     count = int(r.get(fn_name))
     print(f'{fn_name} was called {count} times:')
