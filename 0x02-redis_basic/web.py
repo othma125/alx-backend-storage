@@ -21,7 +21,7 @@ def data_cacher(method: Callable) -> Callable:
         if r.exists(f"{method.__qualname__}"):
             return r.get(f"{method.__qualname__}")
         result = method(url)
-        # r.set(f'count:{url}', 0)
+        r.set(f'count:{url}', 0)
         r.setex(f"{method.__qualname__}", 10, result)
         return result
     return wrapper
