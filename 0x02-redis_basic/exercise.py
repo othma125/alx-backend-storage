@@ -32,7 +32,7 @@ def call_history(method: Callable) -> Callable:
         in_key = f'{method.__qualname__}:inputs'
         out_key = f'{method.__qualname__}:outputs'
         if isinstance(self._redis, redis.Redis):
-            self._redis.rpush(in_key, str(args))
+            self._redis.rpush(in_key, '-'.join(args))
             output = method(self, *args, **kwargs)
             self._redis.rpush(out_key, str(output))
             return output
@@ -57,7 +57,7 @@ def replay(fn: Callable) -> None:
     inputs = r.lrange(f'{fn_name}:inputs', 0, -1)
     outputs = r.lrange(f'{fn_name}:outputs', 0, -1)
     for i, o in zip(inputs, outputs):
-        print(f'{fn_name}(*{i.decode("utf-8")}) -> {o.decode("utf-8")}')
+        print(f'{fn_name}(*{i}) -> {o}')
 
 
 DataType = Union[str, bytes, int, float]
@@ -79,9 +79,10 @@ class Cache:
 
     def get(self, key: str, fn: Callable = None) -> DataType:
         """Method that gets cache data"""
+        data = self._redis.get(key)
         if fn:
-            return fn(self._redis.get(key))
-        return self._redis.get(key)
+            return fn(data)
+        return data
 
     def get_str(self, key: str) -> str:
         """Method that gets cache data as string"""
