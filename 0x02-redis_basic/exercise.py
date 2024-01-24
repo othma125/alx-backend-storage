@@ -34,7 +34,6 @@ def call_history(method: Callable) -> Callable:
         if isinstance(self._redis, redis.Redis):
             self._redis.rpush(in_key, str(args))
             output = method(self, *args, **kwargs)
-        # if isinstance(self._redis, redis.Redis):
             self._redis.rpush(out_key, str(output))
             return output
         return None
@@ -51,7 +50,7 @@ def replay(fn: Callable) -> None:
     if not isinstance(r, redis.Redis):
         return
     fn_name = fn.__qualname__
-    count = int(r.get(fn_name))
+    count = int(r.get(fn_name)) if r.get(fn_name) else 0
     print(f'{fn_name} was called {count} times:')
     inputs = r.lrange(f'{fn_name}:inputs', 0, -1)
     outputs = r.lrange(f'{fn_name}:outputs', 0, -1)
