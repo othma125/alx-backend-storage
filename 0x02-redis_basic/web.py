@@ -17,12 +17,13 @@ def data_cacher(method: Callable) -> Callable:
     def invoker(url) -> str:
         """Returns the cached data if available, otherwise fetches it.
         """
-        data = r.get(url)
-        if data:
-            return data.decode('utf-8')
-        data = method(url)
-        r.setex(url, 10, data)
-        return data
+        r.incr(f"count:{url}")
+        cached_response = r.get(f"cached:{url}")
+        if cached_response:
+            return cached_response.decode('utf-8')
+        result = method(url)
+        r.setex(f"cached:{url}", 10, result)
+        return result
     return invoker
 
 
