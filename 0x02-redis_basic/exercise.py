@@ -64,6 +64,7 @@ DataType = Union[str, bytes, int, float]
 
 
 class Cache:
+    """Cache class"""
     def __init__(self):
         """Cache class"""
         self._redis = redis.Redis()
